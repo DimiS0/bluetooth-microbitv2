@@ -1,0 +1,113 @@
+let held = 0
+let pressStart = 0
+let isDown = false
+let pressedNow = false
+let bNow = false
+let aNow = false
+let busy = false
+
+// "A" of "B"
+let lastButton = ""
+servos.P0.setAngle(90)
+basic.forever(function () {
+    if (busy) {
+        return
+    }
+    // welke knop is NU ingedrukt?
+    aNow = input.buttonIsPressed(Button.A)
+    bNow = input.buttonIsPressed(Button.B)
+    pressedNow = aNow || bNow
+    // net begonnen met indrukken
+    if (pressedNow && !(isDown)) {
+        isDown = true
+        pressStart = input.runningTime()
+        lastButton = aNow ? "A" : "B"
+    }
+    // net losgelaten
+    if (!(pressedNow) && isDown) {
+        isDown = false
+        held = input.runningTime() - pressStart
+        busy = true
+        if (held < 700) {
+            // KORT → X, verschillend voor A/B
+            if (lastButton == "A") {
+                // X voor A
+                basic.showLeds(`
+                    . . # . .
+                    . # # # .
+                    # # # # #
+                    # # # # #
+                    . # . # .
+                    `)
+            } else {
+                // X voor B (ander patroon, pas aan zoals jij wilt)
+                basic.showLeds(`
+                    . . . . .
+                    . . # . .
+                    . # # # .
+                    . # . # .
+                    . . . . .
+                    `)
+            }
+            basic.pause(1000)
+            basic.clearScreen()
+            basic.pause(2000)
+            basic.showLeds(`
+                # . . . #
+                . # . # .
+                . . # . .
+                . # . # .
+                # . . . #
+                `)
+            basic.pause(1000)
+            basic.clearScreen()
+        } else {
+            // LANG → open-sequence, verschillend voor A/B
+            if (lastButton == "A") {
+                // GOED‑A
+                basic.showLeds(`
+                    . . # . .
+                    . # # # .
+                    # # # # #
+                    # # # # #
+                    . # . # .
+                    `)
+                basic.pause(100)
+                basic.clearScreen()
+                basic.pause(2000)
+                basic.showLeds(`
+                    . . . # .
+                    . . # . #
+                    . # . . .
+                    # . . . .
+                    . . . . .
+                    `)
+            } else {
+                // GOED‑B (ander pattern)
+                basic.showLeds(`
+                    . . . . .
+                    . . # . .
+                    . # # # .
+                    . # . # .
+                    . . . . .
+                    `)
+                basic.pause(100)
+                basic.clearScreen()
+                basic.pause(2000)
+                basic.showLeds(`
+                    . . . # .
+                    . . # . #
+                    . # . . .
+                    # . . . .
+                    . . . . .
+                    `)
+            }
+            // servo hetzelfde voor beide
+            servos.P0.setAngle(180)
+            basic.pause(3000)
+            servos.P0.setAngle(90)
+            basic.clearScreen()
+        }
+        busy = false
+    }
+})
